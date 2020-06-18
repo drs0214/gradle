@@ -436,6 +436,27 @@ public class DefaultDependencyManagementServices implements DependencyManagement
         }
 
         BaseRepositoryFactory createBaseRepositoryFactory(
+            LocalMavenRepositoryLocator localMavenRepositoryLocator,
+            FileResolver fileResolver,
+            FileCollectionFactory fileCollectionFactory,
+            RepositoryTransportFactory repositoryTransportFactory,
+            LocallyAvailableResourceFinder<ModuleComponentArtifactMetadata> locallyAvailableResourceFinder,
+            FileStoreAndIndexProvider fileStoreAndIndexProvider,
+            VersionSelectorScheme versionSelectorScheme,
+            AuthenticationSchemeRegistry authenticationSchemeRegistry,
+            IvyContextManager ivyContextManager,
+            ImmutableAttributesFactory attributesFactory,
+            ImmutableModuleIdentifierFactory moduleIdentifierFactory,
+            InstantiatorFactory instantiatorFactory,
+            FileResourceRepository fileResourceRepository,
+            MavenMutableModuleMetadataFactory metadataFactory,
+            IvyMutableModuleMetadataFactory ivyMetadataFactory,
+            IsolatableFactory isolatableFactory,
+            ObjectFactory objectFactory,
+            DomainObjectCollectionFactory collectionFactory,
+            NamedObjectInstantiator instantiator,
+            DefaultUrlArtifactRepository.Factory urlArtifactRepositoryFactory,
+            ChecksumService checksumService
                 LocalMavenRepositoryLocator localMavenRepositoryLocator,
                 FileResolver fileResolver,
                 FileCollectionFactory fileCollectionFactory,
@@ -460,28 +481,28 @@ public class DefaultDependencyManagementServices implements DependencyManagement
                 ProviderFactory providerFactory
         ) {
             return new DefaultBaseRepositoryFactory(
-                    localMavenRepositoryLocator,
-                    fileResolver,
-                    fileCollectionFactory,
-                    repositoryTransportFactory,
-                    locallyAvailableResourceFinder,
-                    fileStoreAndIndexProvider.getArtifactIdentifierFileStore(),
-                    fileStoreAndIndexProvider.getExternalResourceFileStore(),
-                    new GradlePomModuleDescriptorParser(versionSelectorScheme, moduleIdentifierFactory, fileResourceRepository, metadataFactory),
-                    new GradleModuleMetadataParser(attributesFactory, moduleIdentifierFactory, instantiator),
-                    authenticationSchemeRegistry,
-                    ivyContextManager,
-                    moduleIdentifierFactory,
-                    instantiatorFactory,
-                    fileResourceRepository,
-                    metadataFactory,
-                    ivyMetadataFactory,
-                    isolatableFactory,
-                    objectFactory,
-                    callbackDecorator,
-                    urlArtifactRepositoryFactory,
-                    checksumService,
-                    providerFactory);
+                localMavenRepositoryLocator,
+                fileResolver,
+                fileCollectionFactory,
+                repositoryTransportFactory,
+                locallyAvailableResourceFinder,
+                fileStoreAndIndexProvider.getArtifactIdentifierFileStore(),
+                fileStoreAndIndexProvider.getExternalResourceFileStore(),
+                new GradlePomModuleDescriptorParser(versionSelectorScheme, moduleIdentifierFactory, fileResourceRepository, metadataFactory),
+                new GradleModuleMetadataParser(attributesFactory, moduleIdentifierFactory, instantiator),
+                authenticationSchemeRegistry,
+                ivyContextManager,
+                moduleIdentifierFactory,
+                instantiatorFactory,
+                fileResourceRepository,
+                metadataFactory,
+                ivyMetadataFactory,
+                isolatableFactory,
+                objectFactory,
+                collectionFactory,
+                urlArtifactRepositoryFactory,
+                checksumService,
+                providerFactory);
         }
 
         RepositoryHandler createRepositoryHandler(DomainObjectCollectionFactory factory, BaseRepositoryFactory baseRepositoryFactory) {
@@ -532,8 +553,8 @@ public class DefaultDependencyManagementServices implements DependencyManagement
             return null;
         }
 
-        ArtifactTypeRegistry createArtifactTypeRegistry(Instantiator instantiator, ImmutableAttributesFactory immutableAttributesFactory, CollectionCallbackActionDecorator decorator) {
-            return new DefaultArtifactTypeRegistry(instantiator, immutableAttributesFactory, decorator);
+        ArtifactTypeRegistry createArtifactTypeRegistry(DomainObjectCollectionFactory collectionFactory, ImmutableAttributesFactory immutableAttributesFactory) {
+            return new DefaultArtifactTypeRegistry(collectionFactory, immutableAttributesFactory);
         }
 
         DependencyHandler createDependencyHandler(Instantiator instantiator, ConfigurationContainerInternal configurationContainer, DependencyFactory dependencyFactory,
