@@ -457,29 +457,8 @@ public class DefaultDependencyManagementServices implements DependencyManagement
             DomainObjectCollectionFactory collectionFactory,
             NamedObjectInstantiator instantiator,
             DefaultUrlArtifactRepository.Factory urlArtifactRepositoryFactory,
-            ChecksumService checksumService
-                LocalMavenRepositoryLocator localMavenRepositoryLocator,
-                FileResolver fileResolver,
-                FileCollectionFactory fileCollectionFactory,
-                RepositoryTransportFactory repositoryTransportFactory,
-                LocallyAvailableResourceFinder<ModuleComponentArtifactMetadata> locallyAvailableResourceFinder,
-                FileStoreAndIndexProvider fileStoreAndIndexProvider,
-                VersionSelectorScheme versionSelectorScheme,
-                AuthenticationSchemeRegistry authenticationSchemeRegistry,
-                IvyContextManager ivyContextManager,
-                ImmutableAttributesFactory attributesFactory,
-                ImmutableModuleIdentifierFactory moduleIdentifierFactory,
-                InstantiatorFactory instantiatorFactory,
-                FileResourceRepository fileResourceRepository,
-                MavenMutableModuleMetadataFactory metadataFactory,
-                IvyMutableModuleMetadataFactory ivyMetadataFactory,
-                IsolatableFactory isolatableFactory,
-                ObjectFactory objectFactory,
-                CollectionCallbackActionDecorator callbackDecorator,
-                NamedObjectInstantiator instantiator,
-                DefaultUrlArtifactRepository.Factory urlArtifactRepositoryFactory,
-                ChecksumService checksumService,
-                ProviderFactory providerFactory
+            ChecksumService checksumService,
+            ProviderFactory providerFactory
         ) {
             return new DefaultBaseRepositoryFactory(
                 localMavenRepositoryLocator,
