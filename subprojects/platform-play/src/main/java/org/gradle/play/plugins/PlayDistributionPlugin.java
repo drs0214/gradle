@@ -31,9 +31,10 @@ import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
+import org.gradle.api.distribution.Distribution;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.FileCopyDetails;
-import org.gradle.api.internal.CollectionCallbackActionDecorator;
+import org.gradle.api.internal.collections.DomainObjectCollectionFactory;
 import org.gradle.api.internal.file.FileOperations;
 import org.gradle.api.internal.file.copy.CopySpecInternal;
 import org.gradle.api.model.ObjectFactory;
@@ -44,7 +45,6 @@ import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.api.tasks.bundling.Tar;
 import org.gradle.api.tasks.bundling.Zip;
 import org.gradle.internal.deprecation.DeprecationLogger;
-import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.jvm.tasks.Jar;
 import org.gradle.model.Defaults;
@@ -83,13 +83,14 @@ public class PlayDistributionPlugin extends RuleSource {
     public static final String STAGE_LIFECYCLE_TASK_NAME = "stage";
 
     @Model
-    PlayDistributionContainer distributions(Instantiator instantiator, CollectionCallbackActionDecorator collectionCallbackActionDecorator) {
+    PlayDistributionContainer distributions(ServiceRegistry serviceRegistry) {
         DeprecationLogger.deprecatePlugin("Play Distribution")
             .replaceWithExternalPlugin("org.gradle.playframework-distribution")
             .willBeRemovedInGradle7()
             .withUserManual("play_plugin")
             .nagUser();
-        return new DefaultPlayDistributionContainer(instantiator, collectionCallbackActionDecorator);
+        DomainObjectCollectionFactory collectionFactory = serviceRegistry.get(DomainObjectCollectionFactory.class);
+        return collectionFactory.newContainer(DefaultPlayDistributionContainer.class, Distribution.class);
     }
 
     @Mutate

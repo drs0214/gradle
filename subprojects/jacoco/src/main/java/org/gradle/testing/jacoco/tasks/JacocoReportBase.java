@@ -22,7 +22,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.internal.CollectionCallbackActionDecorator;
+import org.gradle.api.internal.collections.DomainObjectCollectionFactory;
 import org.gradle.api.internal.project.IsolatedAntBuilder;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.InputFiles;
@@ -69,17 +69,12 @@ public abstract class JacocoReportBase extends JacocoBase {
     }
 
     @Inject
-    protected Instantiator getInstantiator() {
+    protected DomainObjectCollectionFactory getDomainObjectCollectionFactory() {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Required for decorating reports container callbacks for tracing user code application.
-     *
-     * @since 5.1
-     */
     @Inject
-    protected CollectionCallbackActionDecorator getCallbackActionDecorator() {
+    protected Instantiator getInstantiator() {
         throw new UnsupportedOperationException();
     }
 

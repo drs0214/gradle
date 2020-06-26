@@ -19,6 +19,7 @@ import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.Incubating;
 import org.gradle.api.provider.Property;
+import org.gradle.api.reporting.ConfigurableReport;
 import org.gradle.api.reporting.Reporting;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.CacheableTask;
@@ -43,7 +44,7 @@ public class JacocoReport extends JacocoReportBase implements Reporting<JacocoRe
     public JacocoReport() {
         super();
         projectName.value(getProject().getName()).disallowChanges();
-        reports = getInstantiator().newInstance(JacocoReportsContainerImpl.class, this, getCallbackActionDecorator());
+        reports = getDomainObjectCollectionFactory().newContainer(JacocoReportsContainerImpl.class, ConfigurableReport.class, this);
     }
 
     /**

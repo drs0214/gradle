@@ -31,7 +31,7 @@ class VisualStudioProjectRegistryTest extends Specification {
     TestNameTestDirectoryProvider tmpDir = new TestNameTestDirectoryProvider(getClass())
     def fileResolver = Mock(FileResolver)
     def ideArtifactRegistry = Mock(IdeArtifactRegistry)
-    def registry = new VisualStudioProjectRegistry(fileResolver, TestUtil.instantiatorFactory().decorateLenient(), ideArtifactRegistry, CollectionCallbackActionDecorator.NOOP, TestUtil.objectFactory(), new DefaultProviderFactory())
+    def registry = TestUtil.domainObjectCollectionFactory().newContainer(VisualStudioProjectRegistry, DefaultVisualStudioProject, fileResolver, ideArtifactRegistry, CollectionCallbackActionDecorator.NOOP, new DefaultProviderFactory())
 
     def "creates a matching visual studio project configuration for target binary"() {
         def executableBinary = targetBinary("vsConfig")
