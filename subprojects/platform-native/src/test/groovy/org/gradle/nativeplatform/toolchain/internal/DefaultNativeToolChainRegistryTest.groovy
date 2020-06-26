@@ -15,12 +15,13 @@
  */
 
 package org.gradle.nativeplatform.toolchain.internal
+
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectFactory
-import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.internal.reflect.Instantiator
-import org.gradle.nativeplatform.toolchain.internal.compilespec.CCompileSpec
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import org.gradle.nativeplatform.toolchain.NativeToolChain
+import org.gradle.nativeplatform.toolchain.internal.compilespec.CCompileSpec
 import org.gradle.test.fixtures.file.TestNameTestDirectoryProvider
 import org.gradle.util.TestUtil
 import org.junit.Rule
@@ -34,8 +35,7 @@ class DefaultNativeToolChainRegistryTest extends Specification {
 
     def project = TestUtil.create(testDir).rootProject()
 
-    def instantiator = project.services.get(Instantiator)
-    def registry = instantiator.newInstance(DefaultNativeToolChainRegistry, instantiator, CollectionCallbackActionDecorator.NOOP)
+    def registry = TestUtil.domainObjectCollectionFactory().newContainer(DefaultNativeToolChainRegistry, NativeToolChain)
     def factory = Mock(NamedDomainObjectFactory)
     def platform = new DefaultNativePlatform("platform")
 
@@ -208,8 +208,7 @@ class DefaultNativeToolChainRegistryTest extends Specification {
         return testToolChain
     }
 
-    interface TestNativeToolChain extends NativeToolChainInternal
-    {
+    interface TestNativeToolChain extends NativeToolChainInternal {
         void setBaseDir(String value);
     }
 

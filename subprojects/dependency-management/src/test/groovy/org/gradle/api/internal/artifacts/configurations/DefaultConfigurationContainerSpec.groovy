@@ -15,8 +15,8 @@
  */
 package org.gradle.api.internal.artifacts.configurations
 
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.UnknownConfigurationException
-import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.api.internal.DocumentationRegistry
 import org.gradle.api.internal.DomainObjectContext
 import org.gradle.api.internal.artifacts.ComponentSelectorConverter
@@ -35,7 +35,6 @@ import org.gradle.configuration.internal.UserCodeApplicationContext
 import org.gradle.initialization.ProjectAccessListener
 import org.gradle.internal.event.ListenerManager
 import org.gradle.internal.operations.BuildOperationExecutor
-import org.gradle.internal.reflect.Instantiator
 import org.gradle.util.AttributeTestUtil
 import org.gradle.util.Path
 import org.gradle.util.TestUtil
@@ -45,7 +44,6 @@ import spock.lang.Specification
 class DefaultConfigurationContainerSpec extends Specification {
 
     private ConfigurationResolver resolver = Mock()
-    private Instantiator instantiator = TestUtil.instantiatorFactory().decorateLenient()
     private DomainObjectContext domainObjectContext = Mock()
     private ListenerManager listenerManager = Mock()
     private DependencyMetaDataProvider metaDataProvider = Mock()
@@ -68,13 +66,13 @@ class DefaultConfigurationContainerSpec extends Specification {
     private DocumentationRegistry documentationRegistry = Mock()
     private UserCodeApplicationContext userCodeApplicationContext = Mock()
 
-    private CollectionCallbackActionDecorator domainObjectCollectionCallbackActionDecorator = Mock()
+    def collectionFactory = TestUtil.domainObjectCollectionFactory()
     def immutableAttributesFactory = AttributeTestUtil.attributesFactory()
 
-    private DefaultConfigurationContainer configurationContainer = new DefaultConfigurationContainer(resolver, instantiator, domainObjectContext, listenerManager, metaDataProvider,
-        projectAccessListener, metaDataBuilder, fileCollectionFactory, globalSubstitutionRules, vcsMappingsInternal, componentIdentifierFactory, buildOperationExecutor, taskResolver,
+    private DefaultConfigurationContainer configurationContainer = collectionFactory.newContainer(DefaultConfigurationContainer, Configuration, resolver, domainObjectContext,
+        listenerManager, metaDataProvider, projectAccessListener, metaDataBuilder, fileCollectionFactory, globalSubstitutionRules, vcsMappingsInternal, componentIdentifierFactory, buildOperationExecutor, taskResolver,
         immutableAttributesFactory, moduleIdentifierFactory, componentSelectorConverter, dependencyLockingProvider, projectStateRegistry, documentationRegistry,
-        domainObjectCollectionCallbackActionDecorator, userCodeApplicationContext, TestUtil.domainObjectCollectionFactory(), TestUtil.objectFactory())
+        userCodeApplicationContext, collectionFactory, TestUtil.objectFactory())
 
     def "adds and gets"() {
         1 * domainObjectContext.identityPath("compile") >> Path.path(":build:compile")

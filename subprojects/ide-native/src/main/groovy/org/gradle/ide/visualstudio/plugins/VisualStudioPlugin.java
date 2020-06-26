@@ -88,12 +88,12 @@ public class VisualStudioPlugin extends IdePlugin {
         // Create Visual Studio project extensions
         final VisualStudioExtensionInternal extension;
         if (isRoot()) {
-            extension = (VisualStudioExtensionInternal) project.getExtensions().create(VisualStudioRootExtension.class, "visualStudio", DefaultVisualStudioRootExtension.class, project.getName(), instantiator, target.getObjects(), fileResolver, artifactRegistry, collectionCallbackActionDecorator, project.getProviders());
+            extension = (VisualStudioExtensionInternal) project.getExtensions().create(VisualStudioRootExtension.class, "visualStudio", DefaultVisualStudioRootExtension.class, project.getName(), target.getObjects(), fileResolver, artifactRegistry, project.getProviders());
             final VisualStudioSolution solution = ((VisualStudioRootExtension) extension).getSolution();
             getLifecycleTask().configure(it -> it.dependsOn(solution));
             addWorkspace(solution);
         } else {
-            extension = (VisualStudioExtensionInternal) project.getExtensions().create(VisualStudioExtension.class, "visualStudio", DefaultVisualStudioExtension.class, instantiator, fileResolver, artifactRegistry, collectionCallbackActionDecorator, project.getProviders());
+            extension = (VisualStudioExtensionInternal) project.getExtensions().create(VisualStudioExtension.class, "visualStudio", DefaultVisualStudioExtension.class, fileResolver, artifactRegistry, project.getProviders());
             getLifecycleTask().configure(it -> it.dependsOn(extension.getProjects()));
         }
         includeBuildFileInProject(extension);

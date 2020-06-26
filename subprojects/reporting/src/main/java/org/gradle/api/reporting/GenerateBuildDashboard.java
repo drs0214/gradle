@@ -24,14 +24,13 @@ import org.gradle.api.NamedDomainObjectSet;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.Transformer;
-import org.gradle.api.internal.CollectionCallbackActionDecorator;
+import org.gradle.api.internal.collections.DomainObjectCollectionFactory;
 import org.gradle.api.reporting.internal.BuildDashboardGenerator;
 import org.gradle.api.reporting.internal.DefaultBuildDashboardReports;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.internal.Cast;
-import org.gradle.internal.reflect.Instantiator;
 import org.gradle.util.ClosureBackedAction;
 import org.gradle.util.CollectionUtils;
 
@@ -52,17 +51,12 @@ public class GenerateBuildDashboard extends DefaultTask implements Reporting<Bui
     private final BuildDashboardReports reports;
 
     public GenerateBuildDashboard() {
-        reports = getInstantiator().newInstance(DefaultBuildDashboardReports.class, this, getCollectionCallbackActionDecorator());
+        reports = getCollectionFactory().newContainer(DefaultBuildDashboardReports.class, Report.class, this);
         reports.getHtml().setEnabled(true);
     }
 
     @Inject
-    protected Instantiator getInstantiator() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Inject
-    protected CollectionCallbackActionDecorator getCollectionCallbackActionDecorator() {
+    protected DomainObjectCollectionFactory getCollectionFactory() {
         throw new UnsupportedOperationException();
     }
 
@@ -85,11 +79,11 @@ public class GenerateBuildDashboard extends DefaultTask implements Reporting<Bui
 
         Set<NamedDomainObjectSet<? extends Report>> enabledReportSets = CollectionUtils.collect(allAggregatedReports,
             new Transformer<NamedDomainObjectSet<? extends Report>, Reporting<? extends ReportContainer<?>>>() {
-            @Override
-            public NamedDomainObjectSet<? extends Report> transform(Reporting<? extends ReportContainer<?>> reporting) {
-                return reporting.getReports().getEnabled();
-            }
-        });
+                @Override
+                public NamedDomainObjectSet<? extends Report> transform(Reporting<? extends ReportContainer<?>> reporting) {
+                    return reporting.getReports().getEnabled();
+                }
+            });
         return new LinkedHashSet<Report>(CollectionUtils.flattenCollections(Report.class, enabledReportSets));
     }
 

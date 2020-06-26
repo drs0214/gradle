@@ -18,7 +18,6 @@ package org.gradle.api.internal.artifacts.configurations
 
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.UnknownConfigurationException
-import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.api.internal.DocumentationRegistry
 import org.gradle.api.internal.artifacts.ComponentSelectorConverter
 import org.gradle.api.internal.artifacts.ConfigurationResolver
@@ -37,7 +36,6 @@ import org.gradle.configuration.internal.UserCodeApplicationContext
 import org.gradle.initialization.ProjectAccessListener
 import org.gradle.internal.event.ListenerManager
 import org.gradle.internal.operations.BuildOperationExecutor
-import org.gradle.internal.reflect.Instantiator
 import org.gradle.util.AttributeTestUtil
 import org.gradle.util.TestUtil
 import org.gradle.vcs.internal.VcsMappingsStore
@@ -58,10 +56,9 @@ class DefaultConfigurationContainerTest extends Specification {
     private DependencyLockingProvider lockingProvider = Mock(DependencyLockingProvider)
     private ProjectStateRegistry projectStateRegistry = Mock(ProjectStateRegistry)
     private DocumentationRegistry documentationRegistry = Mock(DocumentationRegistry)
-    private CollectionCallbackActionDecorator callbackActionDecorator = Mock()
     private UserCodeApplicationContext userCodeApplicationContext = Mock()
 
-    private Instantiator instantiator = TestUtil.instantiatorFactory().decorateLenient()
+    def collectionFactory = TestUtil.domainObjectCollectionFactory()
     private ImmutableAttributesFactory immutableAttributesFactory = AttributeTestUtil.attributesFactory()
     private ImmutableModuleIdentifierFactory moduleIdentifierFactory = Mock() {
         module(_, _) >> { args ->
@@ -69,9 +66,9 @@ class DefaultConfigurationContainerTest extends Specification {
         }
     }
     private ComponentSelectorConverter componentSelectorConverter = Mock()
-    private DefaultConfigurationContainer configurationContainer = instantiator.newInstance(DefaultConfigurationContainer.class,
+    private DefaultConfigurationContainer configurationContainer = collectionFactory.newContainer(DefaultConfigurationContainer,
+        Configuration,
         resolver,
-        instantiator,
         new RootScriptDomainObjectContext(),
         listenerManager,
         metaDataProvider,
@@ -89,7 +86,6 @@ class DefaultConfigurationContainerTest extends Specification {
         lockingProvider,
         projectStateRegistry,
         documentationRegistry,
-        callbackActionDecorator,
         userCodeApplicationContext,
         TestUtil.domainObjectCollectionFactory(),
         TestUtil.objectFactory()

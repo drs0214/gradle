@@ -16,7 +16,7 @@
 
 package org.gradle.nativeplatform.internal
 
-import org.gradle.api.internal.CollectionCallbackActionDecorator
+import org.gradle.api.Task
 import org.gradle.language.nativeplatform.DependentSourceSet
 import org.gradle.model.internal.core.MutableModelNode
 import org.gradle.nativeplatform.BuildType
@@ -34,6 +34,7 @@ import org.gradle.platform.base.component.BaseComponentFixtures
 import org.gradle.platform.base.internal.DefaultBinaryNamingScheme
 import org.gradle.platform.base.internal.DefaultBinaryTasksCollection
 import org.gradle.platform.base.internal.DefaultComponentSpecIdentifier
+import org.gradle.util.TestUtil
 import spock.lang.Specification
 
 class NativeBinarySpecTest extends Specification {
@@ -155,8 +156,7 @@ class NativeBinarySpecTest extends Specification {
     }
 
     static class TestNativeBinarySpec extends AbstractNativeBinarySpec {
-        def owner
-        def tasks = new DefaultBinaryTasksCollection(this, null, CollectionCallbackActionDecorator.NOOP)
+        def tasks = TestUtil.domainObjectCollectionFactory().newContainer(DefaultBinaryTasksCollection, Task, this, null)
 
         String getOutputFileName() {
             return null

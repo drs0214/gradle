@@ -18,12 +18,11 @@ package org.gradle.api.internal.artifacts.dsl
 
 import org.gradle.api.Action
 import org.gradle.api.artifacts.ArtifactRepositoryContainer
+import org.gradle.api.artifacts.repositories.ArtifactRepository
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.artifacts.repositories.RepositoryContentDescriptor
-import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.api.internal.artifacts.BaseRepositoryFactory
 import org.gradle.api.internal.artifacts.DefaultArtifactRepositoryContainerTest
-import org.gradle.internal.reflect.Instantiator
 import org.gradle.util.TestUtil
 import org.junit.Test
 
@@ -35,11 +34,8 @@ class DefaultRepositoryHandlerTest extends DefaultArtifactRepositoryContainerTes
         handler = createRepositoryHandler()
     }
 
-    ArtifactRepositoryContainer createRepositoryHandler(
-        BaseRepositoryFactory repositoryFactory = repositoryFactory,
-        Instantiator instantiator = TestUtil.instantiatorFactory().decorateLenient()
-    ) {
-        new DefaultRepositoryHandler(repositoryFactory, instantiator, CollectionCallbackActionDecorator.NOOP)
+    ArtifactRepositoryContainer createRepositoryHandler() {
+        TestUtil.domainObjectCollectionFactory().newContainer(DefaultRepositoryHandler, ArtifactRepository, repositoryFactory)
     }
 
     def testFlatDirWithClosure() {
@@ -294,7 +290,7 @@ class DefaultRepositoryHandlerTest extends DefaultArtifactRepositoryContainerTes
         1 * repo3.content(_) >> { args ->
             args[0].execute(repo3Content)
         }
-        1 * repo3Content.excludeModule("com.mycompany","core")
+        1 * repo3Content.excludeModule("com.mycompany", "core")
         0 * _
     }
 
@@ -340,7 +336,7 @@ class DefaultRepositoryHandlerTest extends DefaultArtifactRepositoryContainerTes
         1 * repo3.content(_) >> { args ->
             args[0].execute(repo3Content)
         }
-        1 * repo3Content.excludeModuleByRegex("com.mycompany","core")
+        1 * repo3Content.excludeModuleByRegex("com.mycompany", "core")
         0 * _
     }
 
@@ -386,7 +382,7 @@ class DefaultRepositoryHandlerTest extends DefaultArtifactRepositoryContainerTes
         1 * repo3.content(_) >> { args ->
             args[0].execute(repo3Content)
         }
-        1 * repo3Content.excludeVersion("com.mycompany","core", "1.0")
+        1 * repo3Content.excludeVersion("com.mycompany", "core", "1.0")
         0 * _
     }
 
@@ -432,7 +428,7 @@ class DefaultRepositoryHandlerTest extends DefaultArtifactRepositoryContainerTes
         1 * repo3.content(_) >> { args ->
             args[0].execute(repo3Content)
         }
-        1 * repo3Content.excludeVersionByRegex("com.mycompany","core", "1.0")
+        1 * repo3Content.excludeVersionByRegex("com.mycompany", "core", "1.0")
         0 * _
     }
 }

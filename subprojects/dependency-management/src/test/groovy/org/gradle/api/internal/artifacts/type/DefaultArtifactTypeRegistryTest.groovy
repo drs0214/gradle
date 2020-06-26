@@ -19,7 +19,6 @@ package org.gradle.api.internal.artifacts.type
 import com.google.common.collect.ImmutableList
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.attributes.Attribute
-import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.api.internal.artifacts.ArtifactAttributes
 import org.gradle.api.internal.attributes.ImmutableAttributes
 import org.gradle.internal.component.model.ComponentArtifactMetadata
@@ -31,7 +30,7 @@ import spock.lang.Specification
 
 class DefaultArtifactTypeRegistryTest extends Specification {
     def attributesFactory = AttributeTestUtil.attributesFactory()
-    def registry = new DefaultArtifactTypeRegistry(TestUtil.instantiatorFactory().decorateLenient(), attributesFactory, CollectionCallbackActionDecorator.NOOP)
+    def registry = new DefaultArtifactTypeRegistry(TestUtil.domainObjectCollectionFactory(), attributesFactory)
 
     def "creates as required and reuses"() {
         expect:

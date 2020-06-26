@@ -164,12 +164,12 @@ public class NativeComponentModelPlugin implements Plugin<ProjectInternal> {
                                   PlatformContainer platforms,
                                   BuildTypeContainer buildTypes) {
             Instantiator instantiator = serviceRegistry.get(Instantiator.class);
-            ObjectFactory sourceDirectorySetFactory = serviceRegistry.get(ObjectFactory.class);
+            ObjectFactory objectFactory = serviceRegistry.get(ObjectFactory.class);
             NativePlatforms nativePlatforms = serviceRegistry.get(NativePlatforms.class);
             FileCollectionFactory fileCollectionFactory = serviceRegistry.get(FileCollectionFactory.class);
             Action<PrebuiltLibrary> initializer = new PrebuiltLibraryInitializer(instantiator, fileCollectionFactory, nativePlatforms, platforms.withType(NativePlatform.class), buildTypes, flavors);
             DomainObjectCollectionFactory domainObjectCollectionFactory = serviceRegistry.get(DomainObjectCollectionFactory.class);
-            return domainObjectCollectionFactory.newContainer(DefaultRepositories.class, ArtifactRepository.class, instantiator, sourceDirectorySetFactory, initializer, domainObjectCollectionFactory);
+            return domainObjectCollectionFactory.newContainer(DefaultRepositories.class, ArtifactRepository.class, instantiator, objectFactory, initializer, domainObjectCollectionFactory);
         }
 
         @Model
@@ -425,17 +425,17 @@ public class NativeComponentModelPlugin implements Plugin<ProjectInternal> {
         }
     }
 
-    private static class DefaultRepositories extends DefaultPolymorphicDomainObjectContainer<ArtifactRepository> implements Repositories {
-        private DefaultRepositories(Instantiator instantiator,
-                                    ObjectFactory objectFactory,
-                                    Action<PrebuiltLibrary> binaryFactory,
-                                    CollectionCallbackActionDecorator collectionCallbackActionDecorator,
-                                    DomainObjectCollectionFactory domainObjectCollectionFactory) {
+    public static class DefaultRepositories extends DefaultPolymorphicDomainObjectContainer<ArtifactRepository> implements Repositories {
+        public DefaultRepositories(Instantiator instantiator,
+                                   ObjectFactory objectFactory,
+                                   Action<PrebuiltLibrary> binaryFactory,
+                                   CollectionCallbackActionDecorator collectionCallbackActionDecorator,
+                                   DomainObjectCollectionFactory domainObjectCollectionFactory) {
             super(ArtifactRepository.class, instantiator, new ArtifactRepositoryNamer(), collectionCallbackActionDecorator);
             registerFactory(PrebuiltLibraries.class, new NamedDomainObjectFactory<PrebuiltLibraries>() {
                 @Override
                 public PrebuiltLibraries create(String name) {
-                    return instantiator.newInstance(DefaultPrebuiltLibraries.class, name, instantiator, objectFactory, binaryFactory, collectionCallbackActionDecorator, domainObjectCollectionFactory);
+                    return domainObjectCollectionFactory.newContainer(DefaultPrebuiltLibraries.class, PrebuiltLibrary.class, name, instantiator, objectFactory, binaryFactory, domainObjectCollectionFactory);
                 }
             });
         }

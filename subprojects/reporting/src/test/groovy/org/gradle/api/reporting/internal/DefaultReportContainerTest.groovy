@@ -47,7 +47,7 @@ class DefaultReportContainerTest extends Specification {
 
     DefaultReportContainer createContainer(Closure cl) {
         try {
-            TestUtil.instantiatorFactory().decorateLenient().newInstance(TestReportContainer, cl)
+            TestUtil.domainObjectCollectionFactory().newContainer(TestReportContainer, Report, cl)
         } catch (ObjectInstantiationException e) {
             throw e.cause
         }

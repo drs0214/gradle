@@ -27,7 +27,6 @@ import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.PublishArtifact
 import org.gradle.api.component.ComponentWithVariants
 import org.gradle.api.file.FileCollection
-import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier
 import org.gradle.api.internal.artifacts.dsl.dependencies.PlatformSupport
 import org.gradle.api.internal.artifacts.ivyservice.projectmodule.ProjectDependencyPublicationResolver
@@ -147,7 +146,7 @@ class DefaultIvyPublicationTest extends Specification {
         publication.dependencies.size() == 1
         def ivyDependency = publication.dependencies.asList().first()
 
-        with (ivyDependency) {
+        with(ivyDependency) {
             organisation == "org"
             module == "name"
             revision == "version"
@@ -180,7 +179,7 @@ class DefaultIvyPublicationTest extends Specification {
         publication.dependencies.size() == 1
         def ivyDependency = publication.dependencies.asList().first()
 
-        with (ivyDependency) {
+        with(ivyDependency) {
             organisation == "pub-org"
             module == "pub-module"
             revision == "pub-revision"
@@ -288,7 +287,7 @@ class DefaultIvyPublicationTest extends Specification {
             projectDependencyResolver,
             TestFiles.fileCollectionFactory(),
             attributesFactory,
-            CollectionCallbackActionDecorator.NOOP,
+            TestUtil.domainObjectCollectionFactory(),
             Mock(VersionMappingStrategyInternal),
             Mock(PlatformSupport)
         )
@@ -319,7 +318,7 @@ class DefaultIvyPublicationTest extends Specification {
         projectIdentity.revision == "revision2"
 
         and:
-        publication.organisation== "organisation2"
+        publication.organisation == "organisation2"
         publication.module == "module2"
         publication.revision == "revision2"
 
@@ -366,7 +365,7 @@ class DefaultIvyPublicationTest extends Specification {
             projectDependencyResolver,
             TestFiles.fileCollectionFactory(),
             attributesFactory,
-            CollectionCallbackActionDecorator.NOOP,
+            TestUtil.domainObjectCollectionFactory(),
             Mock(VersionMappingStrategyInternal),
             Mock(PlatformSupport)
         )
