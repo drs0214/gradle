@@ -18,16 +18,14 @@ package org.gradle.api.internal
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.internal.collections.DomainObjectCollectionFactory
 import org.gradle.api.reflect.TypeOf
-import org.gradle.internal.reflect.Instantiator
 import org.gradle.util.TestUtil
 import spock.lang.Issue
 import spock.lang.Specification
 
 class AbstractNamedDomainObjectContainerTest extends Specification {
-    Instantiator instantiator = TestUtil.instantiatorFactory().decorateLenient()
-    CollectionCallbackActionDecorator collectionCallbackActionDecorator = CollectionCallbackActionDecorator.NOOP
-    AbstractNamedDomainObjectContainer<TestObject> container = instantiator.newInstance(TestContainer.class, instantiator)
+    AbstractNamedDomainObjectContainer<TestObject> container = TestUtil.domainObjectCollectionFactory().newContainer(TestContainer.class, TestObject.class)
 
     def "is dynamic object aware"() {
         expect:
@@ -189,7 +187,7 @@ class AbstractNamedDomainObjectContainerTest extends Specification {
         missingProp.property == 'obj1'
 
         when:
-        container.obj2 { }
+        container.obj2 {}
 
         then:
         MissingMethodException missingMethod = thrown()
@@ -436,8 +434,8 @@ class TestObject {
     String name
     final children
 
-    TestObject(Instantiator instantiator) {
-        children = instantiator.newInstance(TestContainer, instantiator)
+    TestObject(DomainObjectCollectionFactory collectionFactory) {
+        children = collectionFactory.newContainer(TestContainer, TestObject)
     }
 
     def children(Closure cl) {

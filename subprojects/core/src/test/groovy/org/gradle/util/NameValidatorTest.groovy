@@ -17,7 +17,8 @@ package org.gradle.util
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.InvalidUserDataException
-import org.gradle.api.internal.CollectionCallbackActionDecorator
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition
 import org.gradle.api.internal.DocumentationRegistry
 import org.gradle.api.internal.DomainObjectContext
 import org.gradle.api.internal.GradleInternal
@@ -29,8 +30,10 @@ import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.internal.project.taskfactory.TaskFactory
 import org.gradle.api.internal.project.taskfactory.TaskInstantiator
 import org.gradle.api.internal.tasks.DefaultSourceSetContainer
+import org.gradle.api.tasks.SourceSet
 import org.gradle.internal.event.ListenerManager
 import org.gradle.internal.instantiation.InstantiationScheme
+import org.gradle.nativeplatform.Flavor
 import org.gradle.nativeplatform.internal.DefaultFlavorContainer
 import spock.lang.Shared
 import spock.lang.Specification
@@ -45,10 +48,10 @@ class NameValidatorTest extends Specification {
 
     @Shared
     def domainObjectContainersWithValidation = [
-        ["artifact types", new DefaultArtifactTypeContainer(TestUtil.instantiatorFactory().decorateLenient(), AttributeTestUtil.attributesFactory(), CollectionCallbackActionDecorator.NOOP)],
-        ["configurations", new DefaultConfigurationContainer(null, TestUtil.instantiatorFactory().decorateLenient(), domainObjectContext(), Mock(ListenerManager), null, null, null, Mock(FileCollectionFactory), null, null, null, null, null, AttributeTestUtil.attributesFactory(), null, null, null, null, Stub(DocumentationRegistry), CollectionCallbackActionDecorator.NOOP, null, TestUtil.domainObjectCollectionFactory(), TestUtil.objectFactory())],
-        ["flavors", new DefaultFlavorContainer(TestUtil.instantiatorFactory().decorateLenient(), CollectionCallbackActionDecorator.NOOP)],
-        ["source sets", new DefaultSourceSetContainer(TestFiles.resolver(), null, TestUtil.instantiatorFactory().decorateLenient(), TestUtil.objectFactory(), CollectionCallbackActionDecorator.NOOP)]
+        ["artifact types", TestUtil.domainObjectCollectionFactory().newContainer(DefaultArtifactTypeContainer.class, ArtifactTypeDefinition.class, AttributeTestUtil.attributesFactory())],
+        ["configurations", TestUtil.domainObjectCollectionFactory().newContainer(DefaultConfigurationContainer.class, Configuration.class, null, domainObjectContext(), Mock(ListenerManager), null, null, null, Mock(FileCollectionFactory), null, null, null, null, null, AttributeTestUtil.attributesFactory(), null, null, null, null, Stub(DocumentationRegistry), null, null)],
+        ["flavors", TestUtil.domainObjectCollectionFactory().newContainer(DefaultFlavorContainer.class, Flavor.class)],
+        ["source sets", TestUtil.domainObjectCollectionFactory().newContainer(DefaultSourceSetContainer.class, SourceSet.class, TestFiles.resolver(), null)]
     ]
 
     def cleanup() {

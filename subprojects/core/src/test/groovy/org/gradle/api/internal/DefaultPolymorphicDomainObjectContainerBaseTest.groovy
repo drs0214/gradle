@@ -15,12 +15,16 @@
  */
 package org.gradle.api.internal
 
+import org.gradle.api.internal.collections.DomainObjectCollectionFactory
 import org.gradle.internal.reflect.Instantiator
 import org.gradle.model.internal.core.NamedEntityInstantiator
+import org.gradle.util.TestUtil
+
+import javax.inject.Inject
 
 class DefaultPolymorphicDomainObjectContainerBaseTest extends AbstractNamedDomainObjectContainerTest {
     def setup() {
-        container = instantiator.newInstance(PolymorphicTestContainer.class, instantiator, collectionCallbackActionDecorator)
+        container = TestUtil.domainObjectCollectionFactory().newContainer(PolymorphicTestContainer.class, TestObject.class)
     }
 }
 
@@ -34,9 +38,14 @@ class PolymorphicTestContainer extends AbstractPolymorphicDomainObjectContainer<
         throw new UnsupportedOperationException()
     }
 
+    @Inject
+    DomainObjectCollectionFactory getCollectionFactory() {
+        throw new UnsupportedOperationException();
+    }
+
     @Override
     protected TestObject doCreate(String name) {
-        def testObject = new TestObject(instantiator)
+        def testObject = new TestObject(collectionFactory)
         testObject.name = name
         testObject
     }

@@ -49,7 +49,9 @@ import org.gradle.internal.hash.Hashing
 import org.gradle.internal.instantiation.InjectAnnotationHandler
 import org.gradle.internal.instantiation.InstantiatorFactory
 import org.gradle.internal.instantiation.generator.DefaultInstantiatorFactory
+import org.gradle.internal.reflect.Instantiator
 import org.gradle.internal.service.DefaultServiceRegistry
+import org.gradle.internal.service.ServiceRegistration
 import org.gradle.internal.service.ServiceRegistry
 import org.gradle.internal.state.ManagedFactoryRegistry
 import org.gradle.test.fixtures.file.TestDirectoryProvider
@@ -57,6 +59,7 @@ import org.gradle.test.fixtures.file.TestFile
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.testfixtures.internal.NativeServicesTestFixture
 import org.gradle.testfixtures.internal.ProjectBuilderImpl
+import org.spockframework.mock.ISpockMockObject
 
 class TestUtil {
     public static final Closure TEST_CLOSURE = {}
@@ -92,6 +95,10 @@ class TestUtil {
         return services().get(DomainObjectCollectionFactory)
     }
 
+    static DomainObjectCollectionFactory domainObjectCollectionFactory(@DelegatesTo(ServiceOverrides) Closure<?> serviceRegistrationAction) {
+        return services(serviceRegistrationAction).get(DomainObjectCollectionFactory)
+    }
+
     /**
      * Wraps the given items in a mutable domain object set.
      */
@@ -119,13 +126,16 @@ class TestUtil {
         return createServices(fileResolver, fileCollectionFactory).get(ObjectFactory)
     }
 
-    private static ServiceRegistry createServices(FileResolver fileResolver, FileCollectionFactory fileCollectionFactory) {
+    private static ServiceRegistry createServices(FileResolver fileResolver, FileCollectionFactory fileCollectionFactory, @DelegatesTo(ServiceOverrides) Closure<?> serviceRegistrationAction = {}) {
         def services = new DefaultServiceRegistry()
         services.register {
+            def overrides = new ServiceOverrides(it)
+            serviceRegistrationAction.delegate = overrides
+            serviceRegistrationAction.call(overrides)
             it.add(ProviderFactory, new DefaultProviderFactory())
             it.add(TestCrossBuildInMemoryCacheFactory)
             it.add(NamedObjectInstantiator)
-            it.add(CollectionCallbackActionDecorator, CollectionCallbackActionDecorator.NOOP)
+            overrides.maybeAdd(CollectionCallbackActionDecorator.NOOP)
             it.add(MutationGuard, MutationGuards.identity())
             it.add(DefaultDomainObjectCollectionFactory)
             it.add(PropertyHost, PropertyHost.NO_OP)
@@ -133,6 +143,10 @@ class TestUtil {
             it.addProvider(new Object() {
                 InstantiatorFactory createInstantiatorFactory() {
                     instantiatorFactory()
+                }
+
+                Instantiator createInstantiator(InstantiatorFactory instantiatorFactory) {
+                    instantiatorFactory.decorateLenient()
                 }
 
                 ObjectFactory createObjectFactory(InstantiatorFactory instantiatorFactory, NamedObjectInstantiator namedObjectInstantiator, DomainObjectCollectionFactory domainObjectCollectionFactory, PropertyFactory propertyFactory) {
@@ -179,9 +193,13 @@ class TestUtil {
         return services
     }
 
+    static ServiceRegistry services(@DelegatesTo(ServiceOverrides) Closure<?> serviceRegistrationAction) {
+        createServices(TestFiles.resolver().newResolver(new File(".").absoluteFile), TestFiles.fileCollectionFactory(), serviceRegistrationAction)
+    }
+
     static ServiceRegistry services() {
         if (services == null) {
-            services = createServices(TestFiles.resolver().newResolver(new File(".").absoluteFile), TestFiles.fileCollectionFactory())
+            services = services {}
         }
         return services
     }
@@ -264,6 +282,46 @@ class TestUtil {
 
     static ChecksumService getChecksumService() {
         services().get(ChecksumService)
+    }
+
+    static class ServiceOverrides {
+        private final ServiceRegistration registration
+        private final Set<Class> registeredServices = new HashSet<>()
+
+        ServiceOverrides(ServiceRegistration registration) {
+            this.registration = registration
+        }
+
+        void add(Object service) {
+            visitTypes(service) { i ->
+                if (!registeredServices.add(i)) {
+                    throw new IllegalStateException("Multiple services registerd for interface ${i.name}")
+                }
+                registration.add(i, service)
+            }
+        }
+
+        void maybeAdd(Object service) {
+            visitTypes(service) { i ->
+                if (registeredServices.add(i)) {
+                    registration.add(i, service)
+                }
+            }
+        }
+
+        private static void visitTypes(Object service, Closure<?> action) {
+            int count = 0
+            for (i in service.class.interfaces) {
+                if (i == ISpockMockObject || i == Closeable) {
+                    continue
+                }
+                count++
+                action(i)
+            }
+            if (count == 0) {
+                action(service.class)
+            }
+        }
     }
 }
 

@@ -27,7 +27,7 @@ import org.gradle.api.UnknownTaskException
 import org.gradle.api.internal.AbstractPolymorphicDomainObjectContainerSpec
 import org.gradle.api.internal.GradleInternal
 import org.gradle.api.internal.TaskInternal
-import org.gradle.api.internal.project.BuildOperationCrossProjectConfigurator
+import org.gradle.api.internal.project.CrossProjectConfigurator
 import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.internal.project.taskfactory.ITaskFactory
 import org.gradle.api.internal.project.taskfactory.TaskFactory
@@ -37,7 +37,6 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskDependency
 import org.gradle.initialization.ProjectAccessListener
-import org.gradle.internal.reflect.DirectInstantiator
 import org.gradle.internal.service.ServiceRegistry
 import org.gradle.model.internal.registry.ModelRegistry
 import org.gradle.util.Path
@@ -64,17 +63,15 @@ class DefaultTaskContainerTest extends AbstractPolymorphicDomainObjectContainerS
     }
     private taskCount = 1
     private accessListener = Mock(ProjectAccessListener)
-    private container = new DefaultTaskContainerFactory(
-        modelRegistry,
-        DirectInstantiator.INSTANCE,
-        taskFactory,
-        project,
-        accessListener,
-        new TaskStatistics(),
-        buildOperationExecutor,
-        new BuildOperationCrossProjectConfigurator(buildOperationExecutor),
-        callbackActionDecorator
-    ).create()
+    def collectionFactory = TestUtil.domainObjectCollectionFactory {
+        add(taskFactory)
+        add(accessListener)
+        add(new TaskStatistics())
+        add(buildOperationExecutor)
+        add(Stub(CrossProjectConfigurator))
+        add(callbackActionDecorator)
+    }
+    private container = new DefaultTaskContainerFactory(modelRegistry, project, collectionFactory).create()
 
     final boolean supportsBuildOperations = true
 
@@ -1628,11 +1625,20 @@ class DefaultTaskContainerTest extends AbstractPolymorphicDomainObjectContainerS
     }
 
     private <U extends TaskInternal> U task(final String name, Class<U> type) {
-        Mock(type, name: "[task" + taskCount++ + "]") {
+        def task = Mock(type, name: "[task" + taskCount++ + "]") {
             getName() >> name
             getTaskDependency() >> Mock(TaskDependency)
             getTaskIdentity() >> TaskIdentity.create(name, type, project)
         }
+        _ * task.configure(_) >> { Closure action ->
+            if (action.maximumNumberOfParameters == 0) {
+                action.call()
+            } else {
+                action.call(task)
+            }
+            task
+        }
+        return task
     }
 
     private Task addTask(String name) {

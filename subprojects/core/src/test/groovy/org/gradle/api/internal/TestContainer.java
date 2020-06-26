@@ -15,7 +15,9 @@
  */
 package org.gradle.api.internal;
 
-import org.gradle.internal.reflect.Instantiator;
+import org.gradle.api.internal.collections.DomainObjectCollectionFactory;
+
+import javax.inject.Inject;
 
 public class TestContainer extends AbstractNamedDomainObjectContainer<TestObject> {
 
@@ -23,9 +25,13 @@ public class TestContainer extends AbstractNamedDomainObjectContainer<TestObject
         super(TestObject.class, instantiator, new DynamicPropertyNamer(), CollectionCallbackActionDecorator.NOOP);
     }
 
+    @Inject
+    public DomainObjectCollectionFactory getCollectionFactory() {
+        throw new UnsupportedOperationException();
+    }
+
     protected TestObject doCreate(String name) {
-        Instantiator instantiator = getInstantiator();
-        TestObject testObject = new TestObject(instantiator);
+        TestObject testObject = new TestObject(getCollectionFactory());
         testObject.setName(name);
         return testObject;
     }

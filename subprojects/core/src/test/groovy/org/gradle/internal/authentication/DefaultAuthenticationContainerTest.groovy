@@ -16,7 +16,7 @@
 
 package org.gradle.internal.authentication
 
-import org.gradle.api.internal.CollectionCallbackActionDecorator
+
 import org.gradle.authentication.Authentication
 import org.gradle.util.TestUtil
 import spock.lang.Specification
@@ -24,7 +24,7 @@ import spock.lang.Subject
 
 class DefaultAuthenticationContainerTest extends Specification {
     @Subject
-    def container = new DefaultAuthenticationContainer(TestUtil.instantiatorFactory().decorateLenient(), CollectionCallbackActionDecorator.NOOP)
+    def container = TestUtil.domainObjectCollectionFactory().newContainer(DefaultAuthenticationContainer.class, Authentication.class)
 
     def setup() {
         container.registerBinding(TestAuthentication, DefaultTestAuthentication)
@@ -53,6 +53,7 @@ class DefaultAuthenticationContainerTest extends Specification {
         DefaultTestAuthentication(String name) {
             super(name, TestAuthentication)
         }
+
         DefaultTestAuthentication(String name, Class type) {
             super(name, type)
         }
