@@ -16,11 +16,16 @@
 package org.gradle.api.internal
 
 import org.gradle.api.Action
+import org.gradle.util.TestUtil
 
 import static org.gradle.util.WrapUtil.toList
 
 class DefaultDomainObjectSetTest extends AbstractDomainObjectCollectionSpec<CharSequence> {
-    DefaultDomainObjectSet<CharSequence> set = new DefaultDomainObjectSet<CharSequence>(CharSequence, callbackActionDecorator)
+    def collectionFactory = TestUtil.domainObjectCollectionFactory {
+        add(callbackActionDecorator)
+    }
+
+    DefaultDomainObjectSet<CharSequence> set = collectionFactory.newContainer(DefaultDomainObjectSet, CharSequence, CharSequence)
     DefaultDomainObjectSet<CharSequence> container = set
     StringBuffer a = new StringBuffer("a")
     StringBuffer b = new StringBuffer("b")
@@ -42,11 +47,11 @@ class DefaultDomainObjectSetTest extends AbstractDomainObjectCollectionSpec<Char
     }
 
     def "Set semantics preserved if backing collection is a filtered composite set"() {
-        def c1 = new DefaultDomainObjectSet<String>(String, callbackActionDecorator)
-        def c2 = new DefaultDomainObjectSet<String>(String, callbackActionDecorator)
+        def c1 = collectionFactory.newContainer(DefaultDomainObjectSet, String, String)
+        def c2 = collectionFactory.newContainer(DefaultDomainObjectSet, String, String)
         given:
-        def composite = CompositeDomainObjectSet.<String>create(String, c1, c2)
-        def set = new DefaultDomainObjectSet<String>(String, composite.getStore(), callbackActionDecorator)
+        def composite = CompositeDomainObjectSet.<String> create(String, collectionFactory, callbackActionDecorator, [c1, c2])
+        def set = collectionFactory.newContainer(DefaultDomainObjectSet, String, String, composite.getStore())
 
         when:
         c1.add("a")

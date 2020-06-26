@@ -17,6 +17,7 @@ package org.gradle.api.internal
 
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectFactory
+import org.gradle.api.internal.collections.DomainObjectCollectionFactory
 import org.gradle.internal.reflect.Instantiator
 import org.gradle.test.fixtures.AbstractProjectBuilderSpec
 
@@ -27,13 +28,12 @@ class DefaultPolymorphicDomainObjectContainerDslTest extends AbstractProjectBuil
     def agedBarney = new DefaultAgeAwarePerson(name: "Barney", age: 42)
 
     def instantiator
-    def collectionCallbackActionDecorator = CollectionCallbackActionDecorator.NOOP
-
     def container
 
     def setup() {
         instantiator = project.services.get(Instantiator)
-        container = instantiator.newInstance(DefaultPolymorphicDomainObjectContainer, Person, instantiator, collectionCallbackActionDecorator)
+        def factory = project.services.get(DomainObjectCollectionFactory)
+        container = factory.newContainer(DefaultPolymorphicDomainObjectContainer, Person, Person, instantiator)
         project.extensions.add("container", container)
     }
 
@@ -41,6 +41,7 @@ class DefaultPolymorphicDomainObjectContainerDslTest extends AbstractProjectBuil
 
     static class DefaultPerson implements Person {
         String name
+
         String toString() { name }
 
 
@@ -70,7 +71,7 @@ class DefaultPolymorphicDomainObjectContainerDslTest extends AbstractProjectBuil
     }
 
     def "create elements with default type"() {
-        container.registerDefaultFactory({ new DefaultPerson(name: it) } as NamedDomainObjectFactory )
+        container.registerDefaultFactory({ new DefaultPerson(name: it) } as NamedDomainObjectFactory)
 
         when:
         project.container {

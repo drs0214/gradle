@@ -17,7 +17,6 @@
 package org.gradle.platform.base.binary
 
 
-import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.model.internal.core.MutableModelNode
 import org.gradle.model.internal.core.NamedEntityInstantiator
 import org.gradle.model.internal.type.ModelType
@@ -32,7 +31,7 @@ class BaseBinaryFixtures {
     static <T extends BinarySpec, I extends BaseBinarySpec> T create(Class<T> publicType, Class<I> implType, String name, MutableModelNode componentNode) {
         return BaseInstanceFixtureSupport.create(publicType, BinarySpecInternal, implType, name) { MutableModelNode node ->
             def identifier = componentNode ? componentNode.asImmutable(ModelType.of(ComponentSpecInternal), null).instance.identifier.child(name) : new DefaultComponentSpecIdentifier("project", name)
-            return BaseBinarySpec.create(publicType, implType, identifier, node, componentNode, TestUtil.instantiatorFactory().injectLenient(), {} as NamedEntityInstantiator, CollectionCallbackActionDecorator.NOOP, TestUtil.domainObjectCollectionFactory())
+            return BaseBinarySpec.create(publicType, implType, identifier, node, componentNode, TestUtil.instantiatorFactory().injectLenient(), {} as NamedEntityInstantiator, TestUtil.domainObjectCollectionFactory())
         }
     }
 }

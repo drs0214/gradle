@@ -20,10 +20,9 @@ import org.gradle.api.DomainObjectCollection
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectFactory
-import org.gradle.api.internal.CollectionCallbackActionDecorator
-import org.gradle.api.internal.DefaultDomainObjectSet
 import org.gradle.api.internal.DefaultPolymorphicNamedEntityInstantiator
 import org.gradle.internal.Actions
+import org.gradle.util.TestUtil
 import spock.lang.Specification
 
 class DomainObjectCollectionBackedModelMapTest extends Specification {
@@ -49,7 +48,7 @@ class DomainObjectCollectionBackedModelMapTest extends Specification {
 
     def "reasonable error message when creating a non-constructible type"() {
         given:
-        def backingCollection = new DefaultDomainObjectSet(SomeType, CollectionCallbackActionDecorator.NOOP)
+        def backingCollection = TestUtil.domainObjectCollectionFactory().newDomainObjectSet(SomeType)
         def instantiator = new DefaultPolymorphicNamedEntityInstantiator(SomeType, "the collection")
         instantiator.registerFactory(SomeType, new NamedDomainObjectFactory<SomeType>(){
             SomeType create(String name) {

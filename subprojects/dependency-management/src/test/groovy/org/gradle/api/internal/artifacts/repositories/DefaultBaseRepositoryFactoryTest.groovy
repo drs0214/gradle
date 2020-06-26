@@ -17,7 +17,6 @@
 package org.gradle.api.internal.artifacts.repositories
 
 import org.gradle.api.artifacts.dsl.RepositoryHandler
-import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.api.internal.artifacts.DependencyManagementTestUtil
 import org.gradle.api.internal.artifacts.ImmutableModuleIdentifierFactory
 import org.gradle.api.internal.artifacts.dsl.DefaultRepositoryHandler
@@ -61,13 +60,13 @@ class DefaultBaseRepositoryFactoryTest extends Specification {
     final ProviderFactory providerFactory = Mock()
 
     final DefaultBaseRepositoryFactory factory = new DefaultBaseRepositoryFactory(
-            localMavenRepoLocator, fileResolver, fileCollectionFactory, transportFactory, locallyAvailableResourceFinder,
-            artifactIdentifierFileStore, externalResourceFileStore, pomParser, metadataParser, authenticationSchemeRegistry, ivyContextManager, moduleIdentifierFactory,
-            TestUtil.instantiatorFactory(), Mock(FileResourceRepository), mavenMetadataFactory, ivyMetadataFactory, SnapshotTestUtil.valueSnapshotter() as IsolatableFactory, TestUtil.objectFactory(),
-            CollectionCallbackActionDecorator.NOOP,
-            urlArtifactRepositoryFactory,
-            TestUtil.checksumService,
-            providerFactory
+        localMavenRepoLocator, fileResolver, fileCollectionFactory, transportFactory, locallyAvailableResourceFinder,
+        artifactIdentifierFileStore, externalResourceFileStore, pomParser, metadataParser, authenticationSchemeRegistry, ivyContextManager, moduleIdentifierFactory,
+        TestUtil.instantiatorFactory(), Mock(FileResourceRepository), mavenMetadataFactory, ivyMetadataFactory, SnapshotTestUtil.valueSnapshotter() as IsolatableFactory, TestUtil.objectFactory(),
+        TestUtil.domainObjectCollectionFactory(),
+        urlArtifactRepositoryFactory,
+        TestUtil.checksumService,
+        providerFactory
     )
 
     def testCreateFlatDirResolver() {

@@ -19,19 +19,21 @@ package org.gradle.api.internal
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Namer
 import org.gradle.api.Rule
+import org.gradle.api.internal.collections.DomainObjectCollectionFactory
 import org.gradle.api.internal.collections.IterationOrderRetainingSetElementSource
-import org.gradle.internal.reflect.Instantiator
 import org.gradle.util.TestUtil
 
 class DefaultNamedDomainObjectCollectionTest extends AbstractNamedDomainObjectCollectionSpec<Bean> {
 
     private final Namer<Bean> namer = new Namer<Bean>() {
         String determineName(Bean bean) { return bean.name }
-    };
+    }
 
-    Instantiator instantiator = TestUtil.instantiatorFactory().decorateLenient()
+    private DomainObjectCollectionFactory collectionFactory = TestUtil.domainObjectCollectionFactory {
+        add(callbackActionDecorator)
+    }
 
-    final DefaultNamedDomainObjectCollection<Bean> container = new DefaultNamedDomainObjectCollection<Bean>(Bean, new IterationOrderRetainingSetElementSource<Bean>(), instantiator, namer, callbackActionDecorator)
+    final DefaultNamedDomainObjectCollection<Bean> container = collectionFactory.newContainer(DefaultNamedDomainObjectCollection.class, Bean, Bean, new IterationOrderRetainingSetElementSource<Bean>(), namer)
     final Bean a = new BeanSub1("a")
     final Bean b = new BeanSub1("b")
     final Bean c = new BeanSub1("c")
@@ -270,7 +272,7 @@ class DefaultNamedDomainObjectCollectionTest extends AbstractNamedDomainObjectCo
     protected void assertSchemaIs(Map<String, String> expectedSchema) {
         def actualSchema = container.collectionSchema
         Map<String, String> actualSchemaMap = actualSchema.elements.collectEntries { schema ->
-            [ schema.name, schema.publicType.simpleName ]
+            [schema.name, schema.publicType.simpleName]
         }.sort()
         def expectedSchemaMap = expectedSchema.sort()
         assert expectedSchemaMap == actualSchemaMap

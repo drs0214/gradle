@@ -15,7 +15,6 @@
  */
 package org.gradle.api.internal.tasks
 
-import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.api.internal.file.TestFiles
 import org.gradle.api.tasks.SourceSet
 import org.gradle.util.TestUtil
@@ -25,7 +24,7 @@ class DefaultSourceSetContainerTest extends Specification {
 
     def "can create a source set"() {
         given:
-        def container = new DefaultSourceSetContainer(TestFiles.resolver(), TestFiles.fileCollectionFactory(), TestUtil.instantiatorFactory().decorateLenient(), TestUtil.objectFactory(), CollectionCallbackActionDecorator.NOOP)
+        def container = TestUtil.domainObjectCollectionFactory().newContainer(DefaultSourceSetContainer.class, SourceSet.class, TestFiles.resolver(), TestFiles.fileCollectionFactory())
 
         when:
         SourceSet set = container.create("main")

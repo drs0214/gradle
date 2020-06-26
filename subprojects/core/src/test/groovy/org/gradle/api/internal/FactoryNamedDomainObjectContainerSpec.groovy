@@ -26,10 +26,11 @@ import spock.lang.Specification
 class FactoryNamedDomainObjectContainerSpec extends Specification {
     final NamedDomainObjectFactory<String> factory = Mock()
     final Instantiator instantiator = TestUtil.instantiatorFactory().decorateLenient()
+    def collectionFactory = TestUtil.domainObjectCollectionFactory()
     final namer = { it } as Namer
 
     def usesFactoryToCreateContainerElements() {
-        def container = new FactoryNamedDomainObjectContainer<String>(String.class, instantiator, namer, factory, MutationGuards.identity(), CollectionCallbackActionDecorator.NOOP)
+        def container = collectionFactory.newContainer(FactoryNamedDomainObjectContainer, String, String, namer, factory, MutationGuards.identity())
 
         when:
         def result = container.create('a')
@@ -42,7 +43,7 @@ class FactoryNamedDomainObjectContainerSpec extends Specification {
 
     def usesClosureToCreateContainerElements() {
         def cl = { name -> "element $name" as String }
-        def container = new FactoryNamedDomainObjectContainer<String>(String.class, instantiator, namer, cl, MutationGuards.identity(), CollectionCallbackActionDecorator.NOOP)
+        def container = collectionFactory.newContainer(FactoryNamedDomainObjectContainer, String, String, namer, cl, MutationGuards.identity())
 
         when:
         def result = container.create('a')
@@ -62,8 +63,8 @@ class FactoryNamedDomainObjectContainerSpec extends Specification {
         getInstance(name)
     }
 
-    protected getInstance(name) {
-        new FactoryNamedDomainObjectContainer(type, instantiator, new ReflectiveNamedDomainObjectFactory(type, instantiator, *extraArgs), CollectionCallbackActionDecorator.NOOP).create(name)
+    protected getInstance(String name) {
+        collectionFactory.newContainer(FactoryNamedDomainObjectContainer, type, type, new ReflectiveNamedDomainObjectFactory(type, instantiator, *extraArgs)).create(name)
     }
 
     static class JustName implements Named {
@@ -91,10 +92,18 @@ class FactoryNamedDomainObjectContainerSpec extends Specification {
         getInstance()
 
         then:
-        thrown ObjectInstantiationException
+        def e = thrown(ObjectInstantiationException)
+        e.message == "Could not create an instance of type ${JustName.name}."
+        e.cause instanceof IllegalArgumentException
+        e.cause.message == "Too many parameters provided for constructor for type FactoryNamedDomainObjectContainerSpec.JustName. Expected 1, received 3."
     }
 
-    static class NoConstructor {}
+    static class NoConstructor implements Named {
+        @Override
+        String getName() {
+            return "abc"
+        }
+    }
 
     def "type with no name constructor produces exception"() {
         given:
@@ -104,7 +113,9 @@ class FactoryNamedDomainObjectContainerSpec extends Specification {
         getInstance()
 
         then:
-        thrown IllegalArgumentException
+        def e = thrown(ObjectInstantiationException)
+        e.cause instanceof IllegalArgumentException
+        e.cause.message == 'Too many parameters provided for constructor for type FactoryNamedDomainObjectContainerSpec.NoConstructor. Expected 0, received 1.'
     }
 
     static class ExtraArgs implements Named {

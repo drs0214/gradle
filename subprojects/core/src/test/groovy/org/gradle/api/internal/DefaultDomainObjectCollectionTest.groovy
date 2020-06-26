@@ -17,15 +17,21 @@
 package org.gradle.api.internal
 
 import org.gradle.api.Action
+import org.gradle.api.internal.collections.DomainObjectCollectionFactory
 import org.gradle.api.internal.collections.IterationOrderRetainingSetElementSource
 import org.gradle.api.internal.provider.ProviderInternal
 import org.gradle.api.internal.provider.ValueSupplier
 import org.gradle.api.specs.Spec
+import org.gradle.util.TestUtil
 
 import static org.gradle.util.WrapUtil.toList
 
 class DefaultDomainObjectCollectionTest extends AbstractDomainObjectCollectionSpec<CharSequence> {
-    DefaultDomainObjectCollection<CharSequence> container = new DefaultDomainObjectCollection<CharSequence>(CharSequence.class, new IterationOrderRetainingSetElementSource<CharSequence>(), callbackActionDecorator)
+    private DomainObjectCollectionFactory collectionFactory = TestUtil.domainObjectCollectionFactory {
+        add(callbackActionDecorator)
+    }
+
+    DefaultDomainObjectCollection<CharSequence> container = collectionFactory.newContainer(DefaultDomainObjectCollection.class, CharSequence, CharSequence, new IterationOrderRetainingSetElementSource<CharSequence>(), callbackActionDecorator)
     StringBuffer a = new StringBuffer("a")
     StringBuffer b = new StringBuffer("b")
     StringBuffer c = new StringBuffer("c")
@@ -34,6 +40,7 @@ class DefaultDomainObjectCollectionTest extends AbstractDomainObjectCollectionSp
     boolean directElementAdditionAllowed = true
     boolean elementRemovalAllowed = true
     boolean supportsBuildOperations = true
+
     def canGetAllMatchingDomainObjectsOrderedByOrderAdded() {
         def spec = new Spec<CharSequence>() {
             boolean isSatisfiedBy(CharSequence element) {

@@ -21,11 +21,12 @@ import spock.lang.Specification
 
 class NestedConfigureAutoCreateNamedDomainObjectContainerSpec extends Specification {
 
-    def instantiator = TestUtil.instantiatorFactory().decorateLenient()
+    def collectionFactory = TestUtil.domainObjectCollectionFactory()
 
     static class Container extends FactoryNamedDomainObjectContainer {
         String parentName
         String name
+
         Container(String parentName, String name, Closure factory) {
             super(Object, TestUtil.instantiatorFactory().decorateLenient(), new DynamicPropertyNamer(), factory, MutationGuards.identity(), CollectionCallbackActionDecorator.NOOP)
             this.parentName = parentName
@@ -35,9 +36,9 @@ class NestedConfigureAutoCreateNamedDomainObjectContainerSpec extends Specificat
 
     def "can nest auto creation configure closures"() {
         given:
-        def parent = instantiator.newInstance(Container, "top", "parent", { name1 ->
-            instantiator.newInstance(Container, "parent", name1, { name2 ->
-                instantiator.newInstance(Container, name1, name2, { name3 ->
+        def parent = collectionFactory.newContainer(Container, Object, "top", "parent", { name1 ->
+            collectionFactory.newContainer(Container, Object, "parent", name1, { name2 ->
+                collectionFactory.newContainer(Container, Object, name1, name2, { name3 ->
                     [parentName: name2, name: name3]
                 })
             })
@@ -78,8 +79,8 @@ class NestedConfigureAutoCreateNamedDomainObjectContainerSpec extends Specificat
 
     def "configure like method for object that doesn't support it produces error"() {
         given:
-        def parent = instantiator.newInstance(Container, "top", "parent", { name1 ->
-            instantiator.newInstance(Container, "parent", name1, { name2 ->
+        def parent = collectionFactory.newContainer(Container, Object, "top", "parent", { name1 ->
+            collectionFactory.newContainer(Container, Object, "parent", name1, { name2 ->
                 [parent: name1, name: name2]
             })
         })
@@ -89,7 +90,7 @@ class NestedConfigureAutoCreateNamedDomainObjectContainerSpec extends Specificat
             c1 {
                 m1 {
                     prop = "c1c1m1"
-                    
+
                     // Should throw mme because map doesn't have this method
                     somethingThatDoesntExist {
 
@@ -103,7 +104,7 @@ class NestedConfigureAutoCreateNamedDomainObjectContainerSpec extends Specificat
         def e = thrown(groovy.lang.MissingMethodException)
         e.method == "somethingThatDoesntExist"
         parent.c1.m1.prop == "c1c1m1"
-        
+
         // make sure the somethingThatDoesntExist() call didn't resolve against any of the root containers, creating an entry
         parent.size() == 1
         parent.c1.size() == 1

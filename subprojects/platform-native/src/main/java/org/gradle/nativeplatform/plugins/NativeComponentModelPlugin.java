@@ -162,15 +162,14 @@ public class NativeComponentModelPlugin implements Plugin<ProjectInternal> {
         Repositories repositories(ServiceRegistry serviceRegistry,
                                   FlavorContainer flavors,
                                   PlatformContainer platforms,
-                                  BuildTypeContainer buildTypes,
-                                  CollectionCallbackActionDecorator callbackActionDecorator) {
+                                  BuildTypeContainer buildTypes) {
             Instantiator instantiator = serviceRegistry.get(Instantiator.class);
             ObjectFactory sourceDirectorySetFactory = serviceRegistry.get(ObjectFactory.class);
             NativePlatforms nativePlatforms = serviceRegistry.get(NativePlatforms.class);
             FileCollectionFactory fileCollectionFactory = serviceRegistry.get(FileCollectionFactory.class);
             Action<PrebuiltLibrary> initializer = new PrebuiltLibraryInitializer(instantiator, fileCollectionFactory, nativePlatforms, platforms.withType(NativePlatform.class), buildTypes, flavors);
             DomainObjectCollectionFactory domainObjectCollectionFactory = serviceRegistry.get(DomainObjectCollectionFactory.class);
-            return new DefaultRepositories(instantiator, sourceDirectorySetFactory, initializer, callbackActionDecorator, domainObjectCollectionFactory);
+            return domainObjectCollectionFactory.newContainer(DefaultRepositories.class, ArtifactRepository.class, instantiator, sourceDirectorySetFactory, initializer, domainObjectCollectionFactory);
         }
 
         @Model

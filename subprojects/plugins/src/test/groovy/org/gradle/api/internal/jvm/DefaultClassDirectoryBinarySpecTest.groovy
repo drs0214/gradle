@@ -16,7 +16,7 @@
 
 package org.gradle.api.internal.jvm
 
-import org.gradle.api.internal.CollectionCallbackActionDecorator
+
 import org.gradle.api.tasks.SourceSet
 import org.gradle.jvm.platform.JavaPlatform
 import org.gradle.jvm.toolchain.JavaToolChain
@@ -35,6 +35,6 @@ class DefaultClassDirectoryBinarySpecTest extends Specification {
 
     private DefaultClassDirectoryBinarySpec binary(String name) {
         new DefaultClassDirectoryBinarySpec(new DefaultComponentSpecIdentifier(":", name), Stub(SourceSet), Stub(JavaToolChain), Stub(JavaPlatform),
-                TestUtil.instantiatorFactory().decorateLenient(), Mock(NamedEntityInstantiator), CollectionCallbackActionDecorator.NOOP, TestUtil.domainObjectCollectionFactory())
+            Mock(NamedEntityInstantiator), TestUtil.domainObjectCollectionFactory())
     }
 }
