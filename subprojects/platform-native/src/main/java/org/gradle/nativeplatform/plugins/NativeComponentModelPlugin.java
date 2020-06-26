@@ -20,14 +20,12 @@ import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Incubating;
 import org.gradle.api.NamedDomainObjectFactory;
-import org.gradle.api.Namer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.CollectionCallbackActionDecorator;
-import org.gradle.api.internal.DefaultPolymorphicDomainObjectContainer;
 import org.gradle.api.internal.collections.DomainObjectCollectionFactory;
 import org.gradle.api.internal.file.FileCollectionFactory;
 import org.gradle.api.internal.project.DefaultProjectRegistry;
@@ -63,7 +61,6 @@ import org.gradle.nativeplatform.NativeDependencySet;
 import org.gradle.nativeplatform.NativeExecutableBinarySpec;
 import org.gradle.nativeplatform.NativeExecutableSpec;
 import org.gradle.nativeplatform.NativeLibrarySpec;
-import org.gradle.nativeplatform.PrebuiltLibraries;
 import org.gradle.nativeplatform.PrebuiltLibrary;
 import org.gradle.nativeplatform.Repositories;
 import org.gradle.nativeplatform.SharedLibraryBinarySpec;
@@ -87,7 +84,7 @@ import org.gradle.nativeplatform.internal.StaticLibraryBinarySpecInternal;
 import org.gradle.nativeplatform.internal.TargetedNativeComponentInternal;
 import org.gradle.nativeplatform.internal.configure.NativeComponentRules;
 import org.gradle.nativeplatform.internal.pch.PchEnabledLanguageTransform;
-import org.gradle.nativeplatform.internal.prebuilt.DefaultPrebuiltLibraries;
+import org.gradle.nativeplatform.internal.prebuilt.DefaultRepositories;
 import org.gradle.nativeplatform.internal.prebuilt.PrebuiltLibraryInitializer;
 import org.gradle.nativeplatform.internal.resolve.NativeDependencyResolver;
 import org.gradle.nativeplatform.platform.NativePlatform;
@@ -424,28 +421,4 @@ public class NativeComponentModelPlugin implements Plugin<ProjectInternal> {
             resolver.register(new NativeDependentBinariesResolutionStrategy(projectRegistry, projectModelResolver));
         }
     }
-
-    public static class DefaultRepositories extends DefaultPolymorphicDomainObjectContainer<ArtifactRepository> implements Repositories {
-        public DefaultRepositories(Instantiator instantiator,
-                                   ObjectFactory objectFactory,
-                                   Action<PrebuiltLibrary> binaryFactory,
-                                   CollectionCallbackActionDecorator collectionCallbackActionDecorator,
-                                   DomainObjectCollectionFactory domainObjectCollectionFactory) {
-            super(ArtifactRepository.class, instantiator, new ArtifactRepositoryNamer(), collectionCallbackActionDecorator);
-            registerFactory(PrebuiltLibraries.class, new NamedDomainObjectFactory<PrebuiltLibraries>() {
-                @Override
-                public PrebuiltLibraries create(String name) {
-                    return domainObjectCollectionFactory.newContainer(DefaultPrebuiltLibraries.class, PrebuiltLibrary.class, name, instantiator, objectFactory, binaryFactory, domainObjectCollectionFactory);
-                }
-            });
-        }
-    }
-
-    private static class ArtifactRepositoryNamer implements Namer<ArtifactRepository> {
-        @Override
-        public String determineName(ArtifactRepository object) {
-            return object.getName();
-        }
-    }
-
 }

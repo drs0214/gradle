@@ -23,8 +23,8 @@ import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.api.reporting.Report
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.TaskPropertyTestUtils
-import org.gradle.internal.reflect.Instantiator
 import org.gradle.testfixtures.ProjectBuilder
+import org.gradle.util.TestUtil
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -51,6 +51,7 @@ class TaskReportContainerTest extends Specification {
                 Report file(String name) {
                     add(TaskGeneratedSingleFileReport, name, task)
                 }
+
                 Report dir(String name) {
                     add(TaskGeneratedSingleDirectoryReport, name, task, null)
                 }
@@ -61,7 +62,7 @@ class TaskReportContainerTest extends Specification {
     }
 
     DefaultReportContainer createContainer(Closure c) {
-        def container = project.services.get(Instantiator).newInstance(TestReportContainer, task, c)
+        def container = TestUtil.domainObjectCollectionFactory().newContainer(TestReportContainer, Report, task, c)
         container.all {
             it.enabled true
             destination project.file(it.name)

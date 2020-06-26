@@ -16,6 +16,7 @@
 
 package org.gradle.api.reporting.internal
 
+import org.gradle.api.internal.collections.DomainObjectCollectionFactory
 import org.gradle.integtests.fixtures.AbstractIntegrationSpec
 import org.gradle.integtests.fixtures.ToBeFixedForInstantExecution
 import org.gradle.integtests.fixtures.executer.GradleContextualExecuter
@@ -51,7 +52,7 @@ class TaskReportContainerIntegTest extends AbstractIntegrationSpec {
 
             class TestTask extends DefaultTask {
                 @Nested
-                TaskReportContainer reports = project.services.get(org.gradle.internal.reflect.Instantiator).newInstance(TestTaskReportContainer, this)
+                TaskReportContainer reports = project.services.get(${DomainObjectCollectionFactory.name}).newContainer(TestTaskReportContainer, Report, this)
 
                 @TaskAction
                 def doStuff() {
